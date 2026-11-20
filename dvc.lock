@@ -36,3 +36,35 @@ stages:
       hash: md5
       md5: 17d708ff2b5454406bbf54843dd0b1ef
       size: 503
+  prepare:
+    cmd: python -m src.data.prepare
+    deps:
+    - path: data/raw/scam_messages_v1.csv
+      hash: md5
+      md5: 27367441f4a78827ac49aab00e497b6e
+      size: 57172211
+    - path: reports/validation_raw.json
+      hash: md5
+      md5: 17d708ff2b5454406bbf54843dd0b1ef
+      size: 503
+    - path: src/common/textnorm.py
+      hash: md5
+      md5: ef31f7f96d75ba4ee4fff411a859aa7a
+      size: 444
+    - path: src/data/prepare.py
+      hash: md5
+      md5: af3943c5d4996b18bcf67da5b9c70e10
+      size: 2627
+    params:
+      params.yaml:
+        prepare:
+          max_text_chars: 2000
+    outs:
+    - path: data/interim/clean.csv
+      hash: md5
+      md5: 8b30e3c62850977068623cb5ccd14a44
+      size: 48521914
+    - path: reports/prepare_report.json
+      hash: md5
+      md5: 9177e272c4397e8063f3141917351cea
+      size: 224

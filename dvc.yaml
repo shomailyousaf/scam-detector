@@ -10,3 +10,18 @@ stages:
     metrics:
       - reports/validation_raw.json:
           cache: false
+
+  prepare:
+    cmd: python -m src.data.prepare
+    deps:
+      - data/raw/scam_messages_v1.csv
+      - reports/validation_raw.json
+      - src/data/prepare.py
+      - src/common/textnorm.py
+    params:
+      - prepare
+    outs:
+      - data/interim/clean.csv
+    metrics:
+      - reports/prepare_report.json:
+          cache: false

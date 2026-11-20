@@ -1,0 +1,9 @@
+{
+  "rows_in": 61658,
+  "dropped_too_long": 5582,
+  "dropped_conflicting_label_duplicates": 14,
+  "near_duplicate_rows_kept_grouped": 12304,
+  "split_groups": 46370,
+  "largest_group_size": 504,
+  "rows_out": 56062
+}
