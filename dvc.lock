@@ -91,3 +91,40 @@ stages:
       md5: d7828a1f683f9e0d6ff2596f71d71008.dir
       size: 48522078
       nfiles: 3
+  check_splits:
+    cmd: python -m src.data.check_splits
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: d7828a1f683f9e0d6ff2596f71d71008.dir
+      size: 48522078
+      nfiles: 3
+    - path: src/data/check_splits.py
+      hash: md5
+      md5: 087db82ecc6e51e0a68b00dfc5680d12
+      size: 2345
+    - path: src/data/schema.py
+      hash: md5
+      md5: 1afbbac8b1332cc2c8ec0a13c532ee0b
+      size: 2480
+    params:
+      params.yaml:
+        validation:
+          min_rows: 1000
+          min_text_chars: 2
+          allowed_labels:
+          - NORMAL
+          - SCAM
+          allowed_languages:
+          - English
+          - Roman-Urdu
+          - Urdu
+          - Code-Mixed
+          scam_ratio_min: 0.2
+          scam_ratio_max: 0.8
+          max_split_ratio_drift: 0.05
+    outs:
+    - path: reports/split_report.json
+      hash: md5
+      md5: 9a439fa525dde9f22ea929a9149841ad
+      size: 1138

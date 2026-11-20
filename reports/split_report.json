@@ -1,0 +1,57 @@
+{
+  "checks": {
+    "schema_valid": true,
+    "no_group_overlap": true,
+    "no_near_duplicate_overlap": true,
+    "no_id_overlap": true,
+    "all_languages_in_every_split": true,
+    "class_balance_consistent": true
+  },
+  "sizes": {
+    "train": 39073,
+    "val": 8505,
+    "test": 8484
+  },
+  "scam_ratio": {
+    "train": 0.4174,
+    "val": 0.4263,
+    "test": 0.4249
+  },
+  "language_counts": {
+    "train": {
+      "English": 36359,
+      "Roman-Urdu": 1917,
+      "Urdu": 638,
+      "Code-Mixed": 159
+    },
+    "val": {
+      "English": 7793,
+      "Roman-Urdu": 573,
+      "Urdu": 104,
+      "Code-Mixed": 35
+    },
+    "test": {
+      "English": 7792,
+      "Roman-Urdu": 553,
+      "Urdu": 104,
+      "Code-Mixed": 35
+    }
+  },
+  "no_group_overlap_counts": {
+    "train-val": 0,
+    "train-test": 0,
+    "val-test": 0
+  },
+  "no_near_duplicate_overlap_counts": {
+    "train-val": 0,
+    "train-test": 0,
+    "val-test": 0
+  },
+  "no_id_overlap_counts": {
+    "train-val": 0,
+    "train-test": 0,
+    "val-test": 0
+  },
+  "max_scam_ratio_drift": 0.0089,
+  "passed": true
+}

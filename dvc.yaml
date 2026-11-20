@@ -35,3 +35,15 @@ stages:
       - split
     outs:
       - data/processed
+  
+  check_splits:
+    cmd: python -m src.data.check_splits
+    deps:
+      - data/processed
+      - src/data/check_splits.py
+      - src/data/schema.py
+    params:
+      - validation
+    metrics:
+      - reports/split_report.json:
+          cache: false
