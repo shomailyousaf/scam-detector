@@ -25,3 +25,13 @@ stages:
     metrics:
       - reports/prepare_report.json:
           cache: false
+  
+  split:
+    cmd: python -m src.data.split
+    deps:
+      - data/interim/clean.csv
+      - src/data/split.py
+    params:
+      - split
+    outs:
+      - data/processed

@@ -68,3 +68,26 @@ stages:
       hash: md5
       md5: 9177e272c4397e8063f3141917351cea
       size: 224
+  split:
+    cmd: python -m src.data.split
+    deps:
+    - path: data/interim/clean.csv
+      hash: md5
+      md5: 8b30e3c62850977068623cb5ccd14a44
+      size: 48521914
+    - path: src/data/split.py
+      hash: md5
+      md5: c2f524e4c53458f78a59ef1396a03efb
+      size: 1852
+    params:
+      params.yaml:
+        split:
+          seed: 42
+          test_ratio: 0.15
+          val_ratio: 0.15
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: d7828a1f683f9e0d6ff2596f71d71008.dir
+      size: 48522078
+      nfiles: 3
