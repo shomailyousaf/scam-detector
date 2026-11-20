@@ -1,0 +1,23 @@
+{
+  "input": "data/raw/scam_messages_v1.csv",
+  "passed": true,
+  "errors": [],
+  "quality": {
+    "rows": 61658,
+    "label_counts": {
+      "NORMAL": 35536,
+      "SCAM": 26122
+    },
+    "language_counts": {
+      "English": 56996,
+      "Roman-Urdu": 3587,
+      "Urdu": 846,
+      "Code-Mixed": 229
+    },
+    "scam_ratio": 0.4237,
+    "synthetic_rows": 1296,
+    "exact_duplicate_texts": 0,
+    "texts_longer_than_max": 5582,
+    "missing_scam_type_in_scam_rows": 20547
+  }
+}

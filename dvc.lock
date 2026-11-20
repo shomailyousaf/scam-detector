@@ -1,0 +1,38 @@
+schema: '2.0'
+stages:
+  validate_raw:
+    cmd: python -m src.data.validate
+    deps:
+    - path: data/raw/scam_messages_v1.csv
+      hash: md5
+      md5: 27367441f4a78827ac49aab00e497b6e
+      size: 57172211
+    - path: src/data/schema.py
+      hash: md5
+      md5: 1afbbac8b1332cc2c8ec0a13c532ee0b
+      size: 2480
+    - path: src/data/validate.py
+      hash: md5
+      md5: 4ee496a3d60277d901ff26ce710ab2f8
+      size: 2821
+    params:
+      params.yaml:
+        validation:
+          min_rows: 1000
+          min_text_chars: 2
+          allowed_labels:
+          - NORMAL
+          - SCAM
+          allowed_languages:
+          - English
+          - Roman-Urdu
+          - Urdu
+          - Code-Mixed
+          scam_ratio_min: 0.2
+          scam_ratio_max: 0.8
+          max_split_ratio_drift: 0.05
+    outs:
+    - path: reports/validation_raw.json
+      hash: md5
+      md5: 17d708ff2b5454406bbf54843dd0b1ef
+      size: 503

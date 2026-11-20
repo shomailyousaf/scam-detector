@@ -1,0 +1,12 @@
+stages:
+  validate_raw:
+    cmd: python -m src.data.validate
+    deps:
+      - data/raw/scam_messages_v1.csv
+      - src/data/validate.py
+      - src/data/schema.py
+    params:
+      - validation
+    metrics:
+      - reports/validation_raw.json:
+          cache: false
