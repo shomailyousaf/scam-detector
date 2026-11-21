@@ -1,0 +1,34 @@
+{
+  "model": "xlmr_base",
+  "params": {
+    "batch": 32,
+    "best_epoch": 2,
+    "epochs": 2,
+    "lr": 2e-05,
+    "max_len": 128,
+    "model": "xlm-roberta-base",
+    "seed": 42
+  },
+  "test": {
+    "accuracy": 0.983027,
+    "false_alarm_rate": 0.009838,
+    "pr_auc": 0.997957,
+    "scam_f1": 0.979894,
+    "scam_precision": 0.986505,
+    "scam_recall": 0.97337
+  },
+  "test_f1_by_language": {
+    "Code-Mixed": 0.941176,
+    "English": 0.98004,
+    "Roman-Urdu": 0.992806,
+    "Urdu": 0.895105
+  },
+  "val": {
+    "accuracy": 0.93639,
+    "false_alarm_rate": 0.091412,
+    "pr_auc": 0.991506,
+    "scam_f1": 0.928844,
+    "scam_precision": 0.887855,
+    "scam_recall": 0.9738
+  }
+}
