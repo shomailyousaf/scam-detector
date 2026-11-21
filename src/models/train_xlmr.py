@@ -158,7 +158,7 @@ def main():
         mlflow.log_artifact(str(png))
 
         try:
-                   from mlflow import transformers as mlflow_tf
+            from mlflow import transformers as mlflow_tf
             mlflow_tf.log_model(
                 transformers_model={"model": model.cpu(), "tokenizer": tok},
                 name="model", task="text-classification")
