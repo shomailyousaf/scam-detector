@@ -158,8 +158,8 @@ def main():
         mlflow.log_artifact(str(png))
 
         try:
-            import mlflow.transformers
-            mlflow.transformers.log_model(
+                   from mlflow import transformers as mlflow_tf
+            mlflow_tf.log_model(
                 transformers_model={"model": model.cpu(), "tokenizer": tok},
                 name="model", task="text-classification")
             print("[xlmr] model logged with mlflow.transformers")
