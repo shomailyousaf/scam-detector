@@ -7,3 +7,5 @@ pyyaml==6.0.2
 dvc==3.56.0
 pathspec==0.12.1       
 pytest==8.3.3
+mlflow==3.18.0
+matplotlib==3.11.2
