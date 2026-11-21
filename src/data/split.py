@@ -45,7 +45,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     for name in SPLITS:
         part = df[split == name]
-        part.to_csv(out_dir / f"{name}.csv", index=False)
+        part.to_csv(out_dir / f"{name}.csv", index=False, lineterminator="\n")
         print(f"[split] {name:5s} {len(part):6d} rows ({len(part)/len(df):.1%})  scam={part.label_id.mean():.1%}")
 
 

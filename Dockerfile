@@ -1,6 +1,3 @@
-# Reproducible environment: same Python + same pinned libraries everywhere.
-# The repository is mounted at /app at run time (see `make docker-reproduce`),
-# so outputs are written back to your own folder.
 FROM python:3.11-slim
 
 RUN apt-get update \
@@ -9,9 +6,8 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=300 --retries 10 -r requirements.txt
 
-# the mounted repo is owned by the host user; let git inside the container read it
 RUN git config --global --add safe.directory /app
 
-CMD ["make", "reproduce"]
+CMD ["python", "reproduce.py"]

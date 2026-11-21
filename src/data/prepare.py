@@ -68,7 +68,7 @@ def main() -> None:
     out, rep = prepare(df, cfg)
     from pathlib import Path
     Path(cfg["data"]["clean_path"]).parent.mkdir(parents=True, exist_ok=True)
-    out.to_csv(cfg["data"]["clean_path"], index=False)
+    out.to_csv(cfg["data"]["clean_path"], index=False, lineterminator="\n")
     write_json(rep, "reports/prepare_report.json")
     print("[prepare]", rep)
 
