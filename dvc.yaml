@@ -47,3 +47,16 @@ stages:
     metrics:
       - reports/split_report.json:
           cache: false
+
+  train_baselines:
+    cmd: python -m src.models.train_baselines
+    deps:
+      - data/processed
+      - reports/split_report.json
+      - src/models/train_baselines.py
+      - src/models/mlflow_utils.py
+    metrics:
+      - reports/metrics_rules_only.json:
+          cache: false
+      - reports/metrics_tfidf_logreg.json:
+          cache: false
