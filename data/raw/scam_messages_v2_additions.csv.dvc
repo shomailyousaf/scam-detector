@@ -1,0 +1,5 @@
+outs:
+- md5: 7147e771a522d23d39bdbd0aadf26027
+  size: 55557
+  hash: md5
+  path: scam_messages_v2_additions.csv
