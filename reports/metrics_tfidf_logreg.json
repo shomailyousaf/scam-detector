@@ -1,11 +1,11 @@
 {
   "challenge_v2": {
-    "accuracy": 0.6,
-    "false_alarm_rate": 0.466667,
-    "pr_auc": 0.739107,
-    "scam_f1": 0.607143,
-    "scam_precision": 0.548387,
-    "scam_recall": 0.68
+    "accuracy": 0.709091,
+    "false_alarm_rate": 0.433333,
+    "pr_auc": 0.845995,
+    "scam_f1": 0.733333,
+    "scam_precision": 0.628571,
+    "scam_recall": 0.88
   },
   "model": "tfidf_logreg",
   "params": {
@@ -17,25 +17,25 @@
     "ngram_range": "2-5"
   },
   "test": {
-    "accuracy": 0.96405,
-    "false_alarm_rate": 0.02685,
-    "pr_auc": 0.993055,
-    "scam_f1": 0.957444,
-    "scam_precision": 0.963223,
-    "scam_recall": 0.951734
+    "accuracy": 0.964282,
+    "false_alarm_rate": 0.028926,
+    "pr_auc": 0.992991,
+    "scam_f1": 0.957867,
+    "scam_precision": 0.960654,
+    "scam_recall": 0.955096
   },
   "test_f1_by_language": {
-    "Code-Mixed": 0.823529,
-    "English": 0.96091,
-    "Roman-Urdu": 0.994851,
-    "Urdu": 0.424242
+    "Code-Mixed": 0.844444,
+    "English": 0.9605,
+    "Roman-Urdu": 0.988024,
+    "Urdu": 0.603448
   },
   "val": {
-    "accuracy": 0.935332,
-    "false_alarm_rate": 0.078705,
-    "pr_auc": 0.989581,
-    "scam_f1": 0.926372,
-    "scam_precision": 0.900104,
-    "scam_recall": 0.95422
+    "accuracy": 0.934135,
+    "false_alarm_rate": 0.084114,
+    "pr_auc": 0.989854,
+    "scam_f1": 0.925476,
+    "scam_precision": 0.894508,
+    "scam_recall": 0.958664
   }
 }

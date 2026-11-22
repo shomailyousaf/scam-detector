@@ -14,25 +14,25 @@
     "n_keywords": 56
   },
   "test": {
-    "accuracy": 0.715818,
-    "false_alarm_rate": 0.163558,
-    "pr_auc": 0.676306,
-    "scam_f1": 0.622987,
-    "scam_precision": 0.713978,
-    "scam_recall": 0.552566
+    "accuracy": 0.716009,
+    "false_alarm_rate": 0.163985,
+    "pr_auc": 0.676792,
+    "scam_f1": 0.623739,
+    "scam_precision": 0.714032,
+    "scam_recall": 0.553719
   },
   "test_f1_by_language": {
-    "Code-Mixed": 0.709677,
-    "English": 0.550896,
-    "Roman-Urdu": 0.981595,
-    "Urdu": 0.8
+    "Code-Mixed": 0.7,
+    "English": 0.550989,
+    "Roman-Urdu": 0.976048,
+    "Urdu": 0.802721
   },
   "val": {
-    "accuracy": 0.72816,
-    "false_alarm_rate": 0.146341,
-    "pr_auc": 0.646998,
-    "scam_f1": 0.636935,
-    "scam_precision": 0.739606,
-    "scam_recall": 0.559294
+    "accuracy": 0.727315,
+    "false_alarm_rate": 0.148269,
+    "pr_auc": 0.646724,
+    "scam_f1": 0.636689,
+    "scam_precision": 0.737563,
+    "scam_recall": 0.560088
   }
 }

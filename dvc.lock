@@ -98,7 +98,7 @@ stages:
       size: 2335
     params:
       params.yaml:
-        data.version: v1
+        data.version: v2
         split:
           seed: 42
           test_ratio: 0.15
@@ -106,16 +106,16 @@ stages:
     outs:
     - path: data/processed
       hash: md5
-      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
-      size: 48479546
+      md5: cc8e806bc1a6f737a5709ab3bc30f6d9.dir
+      size: 48561157
       nfiles: 4
   check_splits:
     cmd: python -m src.data.check_splits
     deps:
     - path: data/processed
       hash: md5
-      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
-      size: 48479546
+      md5: cc8e806bc1a6f737a5709ab3bc30f6d9.dir
+      size: 48561157
       nfiles: 4
     - path: src/data/check_splits.py
       hash: md5
@@ -127,7 +127,7 @@ stages:
       size: 2188
     params:
       params.yaml:
-        data.version: v1
+        data.version: v2
         validation:
           min_rows: 1000
           min_rows_additions: 100
@@ -146,19 +146,19 @@ stages:
     outs:
     - path: reports/split_report.json
       hash: md5
-      md5: ee350c42f1dc07f988ac59a69d1d668e
+      md5: a5a38c49fc6b6472c5ec68de6d15fadc
       size: 1173
   train_baselines:
     cmd: python -m src.models.train_baselines
     deps:
     - path: data/processed
       hash: md5
-      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
-      size: 48479546
+      md5: cc8e806bc1a6f737a5709ab3bc30f6d9.dir
+      size: 48561157
       nfiles: 4
     - path: reports/split_report.json
       hash: md5
-      md5: ee350c42f1dc07f988ac59a69d1d668e
+      md5: a5a38c49fc6b6472c5ec68de6d15fadc
       size: 1173
     - path: src/models/mlflow_utils.py
       hash: md5
@@ -170,13 +170,13 @@ stages:
       size: 11975
     params:
       params.yaml:
-        data.version: v1
+        data.version: v2
     outs:
     - path: reports/metrics_rules_only.json
       hash: md5
-      md5: 70a8a9c24a3b216c6d36c34da76b2f1e
-      size: 796
+      md5: b487241ab6c4fca9c0b0d16abc00b830
+      size: 797
     - path: reports/metrics_tfidf_logreg.json
       hash: md5
-      md5: 238d828596f92d9e707c109cc7a295f6
-      size: 895
+      md5: f6003b009b74640cf5cf9cf11cc8e0e4
+      size: 902
