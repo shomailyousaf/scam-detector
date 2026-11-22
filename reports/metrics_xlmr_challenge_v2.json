@@ -1,0 +1,6 @@
+{
+  "challenge_false_alarm_rate": 0.233333,
+  "challenge_scam_f1": 0.745098,
+  "challenge_scam_precision": 0.730769,
+  "challenge_scam_recall": 0.76
+}
