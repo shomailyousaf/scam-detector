@@ -17,8 +17,8 @@ def setup_mlflow():
         mlflow.set_tracking_uri(DAGSHUB_URI)
         mode = "DagsHub"
     else:
-        mlflow.set_tracking_uri("file:./mlruns")
-        mode = "local ./mlruns (DagsHub credentials not set)"
+        mlflow.set_tracking_uri("sqlite:///mlflow.db")
+        mode = "local mlflow.db (DagsHub credentials not set)"
     mlflow.set_experiment(EXPERIMENT)
     print(f"[mlflow] tracking -> {mode}")
     return mode
