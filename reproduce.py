@@ -1,21 +1,12 @@
-"""One-command reproduction (works on Windows, Mac, Linux and in Docker).
 
-    python reproduce.py
-
-1. downloads the versioned raw data from the DVC remote (if not present)
-2. reruns EVERY pipeline stage from scratch (ignores cached results)
-3. runs the automated tests
-4. verifies every rebuilt file has the same MD5 fingerprint as in the
-   committed dvc.lock (only content hashes are compared, so file-permission
-   flags that differ between Windows, Linux and Docker do not matter)
-"""
 import subprocess
 import sys
 from pathlib import Path
 
 import yaml
 
-RAW = Path("data/raw/scam_messages_v1.csv")
+RAW_FILES = [Path("data/raw/scam_messages_v1.csv"),
+            Path("data/raw/scam_messages_v2_additions.csv")]
 
 
 def run(step: str, cmd: list[str]) -> None:
@@ -37,8 +28,10 @@ def hashes(lock_text: str) -> dict:
 
 
 def main() -> None:
-    if not RAW.exists():
-        run("1/4 Pull raw data from DVC remote", ["dvc", "pull", f"{RAW}.dvc"])
+    missing = [p for p in RAW_FILES if not p.exists()]
+    if missing:
+        run("1/4 Pull raw data from DVC remote",
+            ["dvc", "pull"] + [f"{p}.dvc" for p in missing])
     else:
         print("\n=== 1/4 Raw data already present, skipping pull ===")
 
