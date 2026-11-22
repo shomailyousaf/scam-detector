@@ -7,18 +7,23 @@ stages:
       hash: md5
       md5: 27367441f4a78827ac49aab00e497b6e
       size: 57172211
+    - path: data/raw/scam_messages_v2_additions.csv
+      hash: md5
+      md5: 7147e771a522d23d39bdbd0aadf26027
+      size: 55557
     - path: src/data/schema.py
       hash: md5
-      md5: 1afbbac8b1332cc2c8ec0a13c532ee0b
-      size: 2480
+      md5: 14dbd433981c40932a011cd0dd7b5cf6
+      size: 2188
     - path: src/data/validate.py
       hash: md5
-      md5: 4ee496a3d60277d901ff26ce710ab2f8
-      size: 2821
+      md5: 1a9b21ef37e08100ae0ac90f155e8e64
+      size: 2895
     params:
       params.yaml:
         validation:
           min_rows: 1000
+          min_rows_additions: 100
           min_text_chars: 2
           allowed_labels:
           - NORMAL
@@ -36,6 +41,10 @@ stages:
       hash: md5
       md5: 1c067c1d898a49afb1a6959403d37b4c
       size: 481
+    - path: reports/validation_v2_additions.json
+      hash: md5
+      md5: b528522fc45eed08f3527fb892930dd0
+      size: 471
   prepare:
     cmd: python -m src.data.prepare
     deps:
@@ -43,18 +52,26 @@ stages:
       hash: md5
       md5: 27367441f4a78827ac49aab00e497b6e
       size: 57172211
+    - path: data/raw/scam_messages_v2_additions.csv
+      hash: md5
+      md5: 7147e771a522d23d39bdbd0aadf26027
+      size: 55557
     - path: reports/validation_raw.json
       hash: md5
       md5: 1c067c1d898a49afb1a6959403d37b4c
       size: 481
+    - path: reports/validation_v2_additions.json
+      hash: md5
+      md5: b528522fc45eed08f3527fb892930dd0
+      size: 471
     - path: src/common/textnorm.py
       hash: md5
       md5: ef31f7f96d75ba4ee4fff411a859aa7a
       size: 444
     - path: src/data/prepare.py
       hash: md5
-      md5: e5f3a8000f32d5f63d29d1612da1ce9c
-      size: 2571
+      md5: 796a1538a18c8516b21d5a14bfe0822b
+      size: 3426
     params:
       params.yaml:
         prepare:
@@ -62,25 +79,26 @@ stages:
     outs:
     - path: data/interim/clean.csv
       hash: md5
-      md5: 9031f5f0a5a6d428e20906214388c460
-      size: 48465851
+      md5: 1f4dd2c55cc2fd5158ee786a036aac1d
+      size: 48547462
     - path: reports/prepare_report.json
       hash: md5
-      md5: e91db88b155468d72237ed7dbd44ac82
-      size: 216
+      md5: 65780bd2c882e9cd24239fdac8818329
+      size: 487
   split:
     cmd: python -m src.data.split
     deps:
     - path: data/interim/clean.csv
       hash: md5
-      md5: 9031f5f0a5a6d428e20906214388c460
-      size: 48465851
+      md5: 1f4dd2c55cc2fd5158ee786a036aac1d
+      size: 48547462
     - path: src/data/split.py
       hash: md5
-      md5: 3780f976ec22aa16ef7a5da36bcff538
-      size: 1820
+      md5: bac5282550b5748a16e9abc73cc0bed1
+      size: 2335
     params:
       params.yaml:
+        data.version: v1
         split:
           seed: 42
           test_ratio: 0.15
@@ -88,29 +106,31 @@ stages:
     outs:
     - path: data/processed
       hash: md5
-      md5: a02475911e99ce3a8045a74b55a80fd0.dir
-      size: 48466013
-      nfiles: 3
+      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
+      size: 48479546
+      nfiles: 4
   check_splits:
     cmd: python -m src.data.check_splits
     deps:
     - path: data/processed
       hash: md5
-      md5: a02475911e99ce3a8045a74b55a80fd0.dir
-      size: 48466013
-      nfiles: 3
+      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
+      size: 48479546
+      nfiles: 4
     - path: src/data/check_splits.py
       hash: md5
-      md5: 68a8bb373aca8317bc0e5bd67940cf78
-      size: 2283
+      md5: df9919d6a84a6a5bdaef7db0d6a88a2f
+      size: 2703
     - path: src/data/schema.py
       hash: md5
-      md5: 1afbbac8b1332cc2c8ec0a13c532ee0b
-      size: 2480
+      md5: 14dbd433981c40932a011cd0dd7b5cf6
+      size: 2188
     params:
       params.yaml:
+        data.version: v1
         validation:
           min_rows: 1000
+          min_rows_additions: 100
           min_text_chars: 2
           allowed_labels:
           - NORMAL
@@ -126,34 +146,37 @@ stages:
     outs:
     - path: reports/split_report.json
       hash: md5
-      md5: 49f5ca6012f38e5b9ec7771949aa8318
-      size: 1082
+      md5: ee350c42f1dc07f988ac59a69d1d668e
+      size: 1173
   train_baselines:
     cmd: python -m src.models.train_baselines
     deps:
     - path: data/processed
       hash: md5
-      md5: a02475911e99ce3a8045a74b55a80fd0.dir
-      size: 48466013
-      nfiles: 3
+      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
+      size: 48479546
+      nfiles: 4
     - path: reports/split_report.json
       hash: md5
-      md5: 49f5ca6012f38e5b9ec7771949aa8318
-      size: 1082
+      md5: ee350c42f1dc07f988ac59a69d1d668e
+      size: 1173
     - path: src/models/mlflow_utils.py
       hash: md5
       md5: d6c2d03f0b302c22987bc17d3f904455
       size: 1027
     - path: src/models/train_baselines.py
       hash: md5
-      md5: 6f6bad22db5b14564cb16a4d23080432
-      size: 11801
+      md5: e197402123c6851f6d72f35b84cd7621
+      size: 11975
+    params:
+      params.yaml:
+        data.version: v1
     outs:
     - path: reports/metrics_rules_only.json
       hash: md5
-      md5: 8d2e191ed77fc62c5857bdccf13f30ab
-      size: 614
+      md5: 70a8a9c24a3b216c6d36c34da76b2f1e
+      size: 796
     - path: reports/metrics_tfidf_logreg.json
       hash: md5
-      md5: 86e8dba63eca3a09f7fd56bc7a107499
-      size: 710
+      md5: 238d828596f92d9e707c109cc7a295f6
+      size: 895

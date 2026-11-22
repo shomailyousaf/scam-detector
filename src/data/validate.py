@@ -1,11 +1,4 @@
-"""Stage 1 - validate the RAW data before anything else runs.
 
-If the CSV is corrupted (missing column, empty text, unknown label, wrong
-types, too few rows, broken class balance) this script exits with code 1,
-so `dvc repro` stops and training never starts on bad data.
-
-Usage:  python -m src.data.validate [--input path] [--report path]
-"""
 import argparse
 import sys
 
@@ -32,17 +25,17 @@ def quality_summary(df: pd.DataFrame, cfg: dict) -> dict:
     }
 
 
-def validate(input_path: str, report_path: str, cfg: dict) -> bool:
+def validate(input_path: str, report_path: str, cfg: dict, min_rows: int | None = None) -> bool:
     report = {"input": input_path, "passed": False, "errors": []}
     try:
         df = pd.read_csv(input_path)
-    except Exception as e:  # unreadable / corrupted file
+    except Exception as e: 
         report["errors"].append(f"cannot read CSV: {type(e).__name__}: {e}")
         write_json(report, report_path)
         return False
 
     try:
-        raw_schema(cfg).validate(df, lazy=True)   # lazy = collect ALL errors
+        raw_schema(cfg, min_rows).validate(df, lazy=True)   
         report["passed"] = True
     except pa.errors.SchemaErrors as err:
         fc = err.failure_cases
@@ -64,13 +57,25 @@ def validate(input_path: str, report_path: str, cfg: dict) -> bool:
 def main() -> None:
     cfg = load_params()
     ap = argparse.ArgumentParser()
-    ap.add_argument("--input", default=cfg["data"]["raw_path"])
+    ap.add_argument("--input", default=None, help="validate only this file")
     ap.add_argument("--report", default="reports/validation_raw.json")
     a = ap.parse_args()
 
-    ok = validate(a.input, a.report, cfg)
-    print(f"[validate] {a.input}: {'PASSED' if ok else 'FAILED'}  (details: {a.report})")
-    sys.exit(0 if ok else 1)
+    if a.input:   
+        checks = [(a.input, a.report, None)]
+    else:         
+        checks = [
+            (cfg["data"]["raw_path"], "reports/validation_raw.json", None),
+            (cfg["data"]["additions_path"], "reports/validation_v2_additions.json",
+             cfg["validation"]["min_rows_additions"]),
+        ]
+
+    all_ok = True
+    for path, report, min_rows in checks:
+        ok = validate(path, report, cfg, min_rows)
+        all_ok &= ok
+        print(f"[validate] {path}: {'PASSED' if ok else 'FAILED'}  (details: {report})")
+    sys.exit(0 if all_ok else 1)
 
 
 if __name__ == "__main__":

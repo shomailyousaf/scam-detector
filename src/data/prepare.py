@@ -62,10 +62,25 @@ def prepare(df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:
     return df, rep
 
 
+def prepare_additions(add: pd.DataFrame, v1_clean: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:
+    """Clean the v2 additions the same way, then keep them fully separate from v1:
+    drop any addition whose near-duplicate key already exists in v1, and give its
+    groups new numbers after v1's, so v1 rows and groups stay exactly as before."""
+    out, rep = prepare(add, cfg)
+    overlap = out["dedup_key"].isin(set(v1_clean["dedup_key"]))
+    rep["dropped_overlap_with_v1"] = int(overlap.sum())
+    out = out[~overlap].copy()
+    out["split_group"] = out["split_group"] + int(v1_clean["split_group"].max()) + 1
+    rep["rows_out"] = int(len(out))
+    return out.reset_index(drop=True), rep
+
+
 def main() -> None:
     cfg = load_params()
-    df = pd.read_csv(cfg["data"]["raw_path"])
-    out, rep = prepare(df, cfg)
+    v1, rep = prepare(pd.read_csv(cfg["data"]["raw_path"]), cfg)
+    add, rep["v2_additions"] = prepare_additions(
+        pd.read_csv(cfg["data"]["additions_path"]), v1, cfg)
+    out = pd.concat([v1, add], ignore_index=True)  
     from pathlib import Path
     Path(cfg["data"]["clean_path"]).parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(cfg["data"]["clean_path"], index=False, lineterminator="\n")

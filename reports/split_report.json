@@ -5,7 +5,8 @@
     "no_near_duplicate_overlap": true,
     "no_id_overlap": true,
     "all_languages_in_every_split": true,
-    "class_balance_consistent": true
+    "class_balance_consistent": true,
+    "challenge_not_in_train_or_val": true
   },
   "sizes": {
     "train": 39073,
@@ -53,5 +54,7 @@
     "val-test": 0
   },
   "max_scam_ratio_drift": 0.0089,
-  "passed": true
+  "passed": true,
+  "challenge_size": 55,
+  "data_version": "v1"
 }

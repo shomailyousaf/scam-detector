@@ -3,6 +3,7 @@ stages:
     cmd: python -m src.data.validate
     deps:
       - data/raw/scam_messages_v1.csv
+      - data/raw/scam_messages_v2_additions.csv
       - src/data/validate.py
       - src/data/schema.py
     params:
@@ -10,11 +11,15 @@ stages:
     metrics:
       - reports/validation_raw.json:
           cache: false
+      - reports/validation_v2_additions.json:
+          cache: false
 
   prepare:
     cmd: python -m src.data.prepare
     deps:
       - data/raw/scam_messages_v1.csv
+      - data/raw/scam_messages_v2_additions.csv
+      - reports/validation_v2_additions.json
       - reports/validation_raw.json
       - src/data/prepare.py
       - src/common/textnorm.py
@@ -33,6 +38,7 @@ stages:
       - src/data/split.py
     params:
       - split
+      - data.version
     outs:
       - data/processed
   
@@ -44,6 +50,7 @@ stages:
       - src/data/schema.py
     params:
       - validation
+      - data.version
     metrics:
       - reports/split_report.json:
           cache: false
@@ -55,6 +62,8 @@ stages:
       - reports/split_report.json
       - src/models/train_baselines.py
       - src/models/mlflow_utils.py
+    params:
+      - data.version
     metrics:
       - reports/metrics_rules_only.json:
           cache: false

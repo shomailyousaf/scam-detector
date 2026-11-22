@@ -1,24 +1,26 @@
-# Central settings for the whole pipeline.
-# Change a value here -> `dvc repro` reruns only the stages that use it.
 
 data:
   raw_path: data/raw/scam_messages_v1.csv
   clean_path: data/interim/clean.csv
   processed_dir: data/processed
+  version: v1                   
+  additions_path: data/raw/scam_messages_v2_additions.csv
+  additions_source: synthetic_v2_generic
 
 validation:
   min_rows: 1000
+  min_rows_additions: 100    
   min_text_chars: 2
   allowed_labels: [NORMAL, SCAM]
   allowed_languages: [English, Roman-Urdu, Urdu, Code-Mixed]
-  scam_ratio_min: 0.20          # whole dataset must be 20-80% scam
+  scam_ratio_min: 0.20          
   scam_ratio_max: 0.80
-  max_split_ratio_drift: 0.05   # scam % of val/test may differ from train by at most 5 points
+  max_split_ratio_drift: 0.05   
 
 prepare:
-  max_text_chars: 2000          # longer texts are e-mails/newsletters, not SMS/chat messages
+  max_text_chars: 2000          
 
 split:
   seed: 42
-  test_ratio: 0.15              # 15% test
-  val_ratio: 0.15               # 15% validation  -> 70% train
+  test_ratio: 0.15             
+  val_ratio: 0.15               

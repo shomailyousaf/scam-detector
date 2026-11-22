@@ -1,5 +1,5 @@
 
-"""Baselines: rules-only and char TF-IDF + Logistic Regression."""
+
 
 import json
 import re
@@ -36,7 +36,7 @@ DATA = Path("data/processed")
 REPORTS = Path("reports")
 
 
-# ------------------------------------------------------------- progress display
+
 
 def run_with_progress(label, function, *args, **kwargs):
     stop_event = threading.Event()
@@ -81,7 +81,7 @@ def checkpoint(message):
     print(f"\n{'=' * 55}\n{message}\n{'=' * 55}", flush=True)
 
 
-# ---------------------------------------------------------------- rules model
+
 
 KEYWORDS = [
     "winner", "won", "prize", "lottery", "claim", "free", "urgent", "verify",
@@ -109,7 +109,7 @@ def rule_score(text: str) -> float:
     return float(hits + 2 * url)
 
 
-# -------------------------------------------------------------------- helpers
+
 
 def git_commit() -> str:
     try:
@@ -122,6 +122,11 @@ def git_commit() -> str:
 
 def dataset_versions() -> dict:
     out = {}
+    try:
+        params = yaml.safe_load(Path("params.yaml").read_text(encoding="utf-8"))
+        out["data_version"] = params["data"]["version"]
+    except Exception as e:
+        out["data_version_error"] = str(e)
     try:
         lock = yaml.safe_load(
             Path("dvc.lock").read_text(encoding="utf-8")
@@ -181,7 +186,7 @@ def save_confusion(y, pred, title, path):
 
 def log_run(
     run_name, params, val_m, test_m, test_lang,
-    test_y, test_pred, model=None
+    test_y, test_pred, model=None, challenge_m=None
 ):
     checkpoint(f"LOGGING {run_name} TO DAGSHUB")
 
@@ -199,6 +204,9 @@ def log_run(
 
         for lang, v in test_lang.items():
             mlflow.log_metric(f"test_f1_{lang}", v)
+
+        for k, v in (challenge_m or {}).items():
+            mlflow.log_metric(f"challenge_v2_{k}", v)
 
         png = REPORTS / f"confusion_{run_name}.png"
 
@@ -232,6 +240,9 @@ def log_run(
             k: round(v, 6) for k, v in sorted(test_lang.items())
         },
     }
+    if challenge_m:
+        # same fixed messages in every data version -> fair v1 vs v2 comparison
+        report["challenge_v2"] = {k: round(v, 6) for k, v in challenge_m.items()}
 
     (REPORTS / f"metrics_{run_name}.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
@@ -249,7 +260,7 @@ def log_run(
     )
 
 
-# ------------------------------------------------------------------------ main
+
 
 def main():
     REPORTS.mkdir(exist_ok=True)
@@ -277,14 +288,17 @@ def main():
         DATA / "test.csv",
     ).fillna({"text": ""})
 
+    challenge = pd.read_csv(DATA / "challenge_v2.csv").fillna({"text": ""})
+
     print(
+        f"\nChallenge rows (v2, never trained on): {len(challenge)}"
         f"\nTraining rows: {len(train)}"
         f"\nValidation rows: {len(val)}"
         f"\nTest rows: {len(test)}",
         flush=True,
     )
 
-    # ---- 1. Rules-only baseline
+   
 
     checkpoint("BASELINE 1: RULES-ONLY MODEL")
 
@@ -311,6 +325,8 @@ def main():
 
     val_pred = (val_scores >= best_t).astype(int)
     test_pred = (test_scores >= best_t).astype(int)
+    ch_scores = challenge["text"].map(rule_score).to_numpy()
+    ch_pred = (ch_scores >= best_t).astype(int)
 
     log_run(
         "rules_only",
@@ -324,9 +340,10 @@ def main():
         f1_by_language(test, test_pred),
         test["label_id"],
         test_pred,
+        challenge_m=metrics_for(challenge["label_id"], ch_pred, ch_scores),
     )
 
-    # ---- 2. TF-IDF + Logistic Regression
+   
 
     checkpoint("BASELINE 2: TF-IDF + LOGISTIC REGRESSION")
 
@@ -402,6 +419,8 @@ def main():
 
     val_pred = (val_prob >= 0.5).astype(int)
     test_pred = (test_prob >= 0.5).astype(int)
+    ch_prob = classifier.predict_proba(vectorizer.transform(challenge["text"]))[:, 1]
+    ch_pred = (ch_prob >= 0.5).astype(int)
 
     log_run(
         "tfidf_logreg",
@@ -419,6 +438,7 @@ def main():
         test["label_id"],
         test_pred,
         model=pipe,
+        challenge_m=metrics_for(challenge["label_id"], ch_pred, ch_prob),
     )
 
     checkpoint("ALL BASELINES COMPLETED SUCCESSFULLY")

@@ -52,6 +52,15 @@ def main() -> None:
     d = Path(cfg["data"]["processed_dir"])
     splits = {n: pd.read_csv(d / f"{n}.csv", keep_default_na=False) for n in ("train", "val", "test")}
     rep = check(splits, cfg)
+
+   
+    challenge = pd.read_csv(d / "challenge_v2.csv", keep_default_na=False)
+    rep["challenge_size"] = int(len(challenge))
+    rep["checks"]["challenge_not_in_train_or_val"] = all(
+        not (set(challenge[col]) & set(splits[n][col]))
+        for n in ("train", "val") for col in ("split_group", "dedup_key", "id"))
+    rep["data_version"] = cfg["data"]["version"]
+    rep["passed"] = all(rep["checks"].values())
     write_json(rep, "reports/split_report.json")
     for k, ok in rep["checks"].items():
         print(f"[check_splits] {'PASS' if ok else 'FAIL'}  {k}")

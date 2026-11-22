@@ -39,14 +39,28 @@ def make_split(df: pd.DataFrame, cfg: dict) -> pd.Series:
 
 def main() -> None:
     cfg = load_params()
-    df = pd.read_csv(cfg["data"]["clean_path"], keep_default_na=False)
-    split = make_split(df, cfg)
-    out_dir = Path(cfg["data"]["processed_dir"])
+    d = cfg["data"]
+    df = pd.read_csv(d["clean_path"], keep_default_na=False)
+
+   
+    is_add = df["source"] == d["additions_source"]
+    orig, add = df[~is_add], df[is_add]
+    split_orig, split_add = make_split(orig, cfg), make_split(add, cfg)
+
+    out_dir = Path(d["processed_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"[split] data version: {d['version']}")
     for name in SPLITS:
-        part = df[split == name]
+        part = orig[split_orig == name]
+        if d["version"] == "v2":
+            part = pd.concat([part, add[split_add == name]])
         part.to_csv(out_dir / f"{name}.csv", index=False, lineterminator="\n")
         print(f"[split] {name:5s} {len(part):6d} rows ({len(part)/len(df):.1%})  scam={part.label_id.mean():.1%}")
+
+   
+    challenge = add[split_add == "test"]
+    challenge.to_csv(out_dir / "challenge_v2.csv", index=False, lineterminator="\n")
+    print(f"[split] challenge_v2 {len(challenge)} rows  scam={challenge.label_id.mean():.1%}")
 
 
 if __name__ == "__main__":

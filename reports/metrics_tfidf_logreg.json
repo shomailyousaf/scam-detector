@@ -1,4 +1,12 @@
 {
+  "challenge_v2": {
+    "accuracy": 0.6,
+    "false_alarm_rate": 0.466667,
+    "pr_auc": 0.739107,
+    "scam_f1": 0.607143,
+    "scam_precision": 0.548387,
+    "scam_recall": 0.68
+  },
   "model": "tfidf_logreg",
   "params": {
     "C": 4.0,

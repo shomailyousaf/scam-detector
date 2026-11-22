@@ -5,5 +5,15 @@
   "near_duplicate_rows_kept_grouped": 12304,
   "split_groups": 46370,
   "largest_group_size": 504,
-  "rows_out": 56062
+  "rows_out": 56062,
+  "v2_additions": {
+    "rows_in": 334,
+    "dropped_too_long": 0,
+    "dropped_conflicting_label_duplicates": 0,
+    "near_duplicate_rows_kept_grouped": 90,
+    "split_groups": 134,
+    "largest_group_size": 3,
+    "rows_out": 334,
+    "dropped_overlap_with_v1": 0
+  }
 }

@@ -1,15 +1,12 @@
-"""Data contracts (schemas) checked with Pandera.
 
-RAW_SCHEMA       -> what the incoming raw CSV must look like.
-PROCESSED_SCHEMA -> what train/val/test must look like. This is the
-                    'handover contract' Member B's training code relies on.
-"""
 import pandera as pa
 from pandera import Check, Column, DataFrameSchema
 
 
-def raw_schema(cfg: dict) -> DataFrameSchema:
-    v = cfg["validation"]
+def raw_schema(cfg: dict, min_rows: int | None = None) -> DataFrameSchema:
+    v = dict(cfg["validation"])
+    if min_rows is not None:
+        v["min_rows"] = min_rows
     return DataFrameSchema(
         {
             "id": Column(int, unique=True, nullable=False),
@@ -32,8 +29,8 @@ def raw_schema(cfg: dict) -> DataFrameSchema:
             Check(lambda df: v["scam_ratio_min"] <= (df["label"] == "SCAM").mean() <= v["scam_ratio_max"],
                   error="SCAM ratio outside allowed range"),
         ],
-        strict=False,   # extra metadata columns are allowed
-        coerce=False,   # wrong types must FAIL, not be silently converted
+        strict=False,  
+        coerce=False,   
     )
 
 
@@ -53,6 +50,6 @@ def processed_schema(cfg: dict) -> DataFrameSchema:
             "split_group": Column(int, nullable=False),
             "dedup_key": Column(str, nullable=False),
         },
-        strict=True,    # exact column set: the handover contract
+        strict=True,   
         coerce=False,
     )

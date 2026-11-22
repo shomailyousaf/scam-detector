@@ -1,4 +1,12 @@
 {
+  "challenge_v2": {
+    "accuracy": 0.745455,
+    "false_alarm_rate": 0.233333,
+    "pr_auc": 0.746473,
+    "scam_f1": 0.72,
+    "scam_precision": 0.72,
+    "scam_recall": 0.72
+  },
   "model": "rules_only",
   "params": {
     "min_score": 1,
