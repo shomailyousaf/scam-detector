@@ -53,8 +53,8 @@ stages:
       size: 444
     - path: src/data/prepare.py
       hash: md5
-      md5: 22f7822a06ddb281a6a197482cd88a8d
-      size: 2648
+      md5: e5f3a8000f32d5f63d29d1612da1ce9c
+      size: 2571
     params:
       params.yaml:
         prepare:
@@ -77,8 +77,8 @@ stages:
       size: 48465851
     - path: src/data/split.py
       hash: md5
-      md5: e61694e13db6df8f4ecc193debbd19f3
-      size: 1873
+      md5: 3780f976ec22aa16ef7a5da36bcff538
+      size: 1820
     params:
       params.yaml:
         split:
@@ -101,8 +101,8 @@ stages:
       nfiles: 3
     - path: src/data/check_splits.py
       hash: md5
-      md5: 087db82ecc6e51e0a68b00dfc5680d12
-      size: 2345
+      md5: 68a8bb373aca8317bc0e5bd67940cf78
+      size: 2283
     - path: src/data/schema.py
       hash: md5
       md5: 1afbbac8b1332cc2c8ec0a13c532ee0b
@@ -128,3 +128,32 @@ stages:
       hash: md5
       md5: 49f5ca6012f38e5b9ec7771949aa8318
       size: 1082
+  train_baselines:
+    cmd: python -m src.models.train_baselines
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: a02475911e99ce3a8045a74b55a80fd0.dir
+      size: 48466013
+      nfiles: 3
+    - path: reports/split_report.json
+      hash: md5
+      md5: 49f5ca6012f38e5b9ec7771949aa8318
+      size: 1082
+    - path: src/models/mlflow_utils.py
+      hash: md5
+      md5: d6c2d03f0b302c22987bc17d3f904455
+      size: 1027
+    - path: src/models/train_baselines.py
+      hash: md5
+      md5: 6f6bad22db5b14564cb16a4d23080432
+      size: 11801
+    outs:
+    - path: reports/metrics_rules_only.json
+      hash: md5
+      md5: 8d2e191ed77fc62c5857bdccf13f30ab
+      size: 614
+    - path: reports/metrics_tfidf_logreg.json
+      hash: md5
+      md5: 86e8dba63eca3a09f7fd56bc7a107499
+      size: 710
