@@ -71,6 +71,20 @@ jobs:
           name: data
           path: data
 
+      # the champion may have been trained on a batch from data/incoming, which dvc tracks,
+      # so the gate needs those files to rebuild the same training data (same step as retrain.yml)
+      - name: connect dvc to dagshub
+        env:
+          DAGSHUB_USER: ${{ secrets.DAGSHUB_USER }}
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user "$DAGSHUB_USER"
+          dvc remote modify origin --local password "$DAGSHUB_TOKEN"
+
+      - name: pull the incoming batches
+        run: dvc pull --glob "data/incoming/*.dvc"
+
       # trains this branch's model and compares it with the production champion
       - name: compare with the production champion
         env:
