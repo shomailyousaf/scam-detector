@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scam Message Detector</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #14181f; --muted: #5b6573; --line: #e1e5ea;
+    --low: #1b7f4b; --low-bg: #e4f4ea; --med: #a15c00; --med-bg: #fdf0d9; --high: #b42318; --high-bg: #fde7e4;
+    --accent: #2457d6; --hl-scam: rgba(210, 45, 35, var(--a, .2)); --hl-ok: rgba(27, 127, 75, var(--a, .2));
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1216; --card: #171b21; --ink: #e8ebf0; --muted: #98a2b0; --line: #2a313b;
+      --low: #5fd195; --low-bg: #12301f; --med: #f0b35a; --med-bg: #3a2a10; --high: #ff8a7d; --high-bg: #3d1713;
+      --accent: #7fa4ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Nastaliq Urdu", "Noto Naskh Arabic", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  textarea { width: 100%; min-height: 130px; resize: vertical; padding: 12px; font: inherit; color: inherit;
+             background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--card);
+           color: var(--ink); padding: 8px 14px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:disabled { opacity: .6; cursor: wait; }
+  .chip { font-size: .85rem; padding: 4px 10px; }
+  .spacer { flex: 1; }
+  .result-head { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .badge { padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: .95rem; }
+  .badge.low { color: var(--low); background: var(--low-bg); }
+  .badge.medium { color: var(--med); background: var(--med-bg); }
+  .badge.high { color: var(--high); background: var(--high-bg); }
+  .label { font-size: 1.4rem; font-weight: 800; }
+  .meter { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; margin: 12px 0 4px; }
+  .meter > span { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  h2 { font-size: 1rem; margin: 0 0 8px; }
+  .msg { padding: 10px 12px; background: var(--bg); border-radius: 8px; line-height: 2; word-break: break-word; }
+  .msg span { border-radius: 4px; padding: 1px 2px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .cols { grid-template-columns: 1fr; } }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  li code { font-family: ui-monospace, Menlo, monospace; }
+  .pos { color: var(--high); } .neg { color: var(--low); }
+  .error { color: var(--high); }
+  .hidden { display: none; }
+  footer { color: var(--muted); font-size: .85rem; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Scam Message Detector</h1>
+  <p class="sub">Paste a message in English, Roman Urdu, Urdu or a mix of them.</p>
+
+  <div class="card">
+    <textarea id="text" dir="auto" placeholder="e.g. Apna OTP abhi bhejo warna account band ho jayega" maxlength="5000"></textarea>
+    <div class="row">
+      <button class="primary" id="go">Check message</button>
+      <button id="clear">Clear</button>
+      <span class="spacer"></span>
+      <span class="muted">Try:</span>
+      <button class="chip" data-ex="Congratulations! You won $5000. Click http://claim-prize.xyz and send your bank details to receive the money.">English</button>
+      <button class="chip" data-ex="Aapka Easypaisa account block ho jayega. Abhi apna OTP aur CNIC number is link par bhejein.">Roman Urdu</button>
+      <button class="chip" data-ex="آپ کا اکاؤنٹ بند ہو جائے گا، فوراً اپنا پن کوڈ بھیجیں ورنہ جرمانہ ہو گا">اردو</button>
+      <button class="chip" data-ex="Kal ki class 10 baje hai, please notes le aana and don't be late">Normal</button>
+    </div>
+  </div>
+
+  <div id="error" class="card error hidden"></div>
+
+  <div id="result" class="hidden">
+    <div class="card">
+      <div class="result-head">
+        <span class="label" id="label"></span>
+        <span class="badge" id="risk"></span>
+        <span class="spacer"></span>
+        <span class="muted" id="prob"></span>
+      </div>
+      <div class="meter"><span id="bar"></span></div>
+      <div class="muted" id="model"></div>
+    </div>
+
+    <div class="card">
+      <h2>Why? <span class="muted">red pushed it towards scam, green towards normal</span></h2>
+      <div class="msg" id="msg" dir="auto"></div>
+    </div>
+
+    <div class="card cols">
+      <div>
+        <h2>Words pointing to scam</h2>
+        <ul id="scamWords"></ul>
+        <h2 style="margin-top:16px">Words pointing to normal</h2>
+        <ul id="normalWords"></ul>
+      </div>
+      <div>
+        <h2>Character patterns (scam)</h2>
+        <ul id="scamPat"></ul>
+        <p class="muted">An underscore _ is a space, so <code>_ot</code> is the start of a word.</p>
+      </div>
+    </div>
+  </div>
+  <footer>The explanation shows each word's share of the model's score (TF-IDF value x logistic regression weight).</footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const RISK_TEXT = { low: "Low risk", medium: "Medium risk", high: "High risk" };
+
+function list(el, items, key, cls) {
+  el.innerHTML = "";
+  if (!items.length) { el.innerHTML = '<li class="muted">nothing significant</li>'; return; }
+  for (const it of items) {
+    const li = document.createElement("li");
+    const code = document.createElement("code");
+    code.textContent = it[key];
+    code.dir = "auto";
+    const s = document.createElement("span");
+    s.className = cls;
+    s.textContent = (it.score > 0 ? "+" : "") + it.score.toFixed(3);
+    li.append(code, s);
+    el.append(li);
+  }
+}
+
+function highlight(tokens) {
+  const box = $("msg");
+  box.innerHTML = "";
+  const max = Math.max(0.0001, ...tokens.map(t => Math.abs(t.score)));
+  tokens.forEach((t, i) => {
+    const sp = document.createElement("span");
+    sp.textContent = t.text;
+    const strength = Math.min(1, Math.abs(t.score) / max);
+    if (Math.abs(t.score) > max * 0.08) {
+      sp.style.setProperty("--a", (0.15 + 0.6 * strength).toFixed(2));
+      sp.style.background = t.score > 0 ? "var(--hl-scam)" : "var(--hl-ok)";
+      sp.title = (t.score > 0 ? "+" : "") + t.score.toFixed(3);
+    }
+    box.append(sp, document.createTextNode(i < tokens.length - 1 ? " " : ""));
+  });
+}
+
+async function check() {
+  const text = $("text").value.trim();
+  $("error").classList.add("hidden");
+  if (!text) return;
+  $("go").disabled = true; $("go").textContent = "Checking...";
+  try {
+    const r = await fetch("/predict", { method: "POST", headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ text, explain: true }) });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      throw new Error(typeof body.detail === "string" ? body.detail : "Request failed (" + r.status + ")");
+    }
+    const d = await r.json();
+    $("label").textContent = d.label === "SCAM" ? "Scam" : "Not a scam";
+    $("risk").textContent = RISK_TEXT[d.risk_level];
+    $("risk").className = "badge " + d.risk_level;
+    $("prob").textContent = "Scam probability " + (d.scam_probability * 100).toFixed(1) + "%";
+    $("bar").style.width = (d.scam_probability * 100) + "%";
+    $("model").textContent = "Model: " + d.model.name + " v" + d.model.version;
+    const e = d.explanation;
+    highlight(e.tokens);
+    list($("scamWords"), e.scam_words, "word", "pos");
+    list($("normalWords"), e.normal_words, "word", "neg");
+    list($("scamPat"), e.scam_patterns, "pattern", "pos");
+    $("result").classList.remove("hidden");
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").classList.remove("hidden");
+    $("result").classList.add("hidden");
+  } finally {
+    $("go").disabled = false; $("go").textContent = "Check message";
+  }
+}
+
+$("go").onclick = check;
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) check(); });
+$("clear").onclick = () => { $("text").value = ""; $("result").classList.add("hidden"); $("error").classList.add("hidden"); };
+document.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("text").value = b.dataset.ex; check(); });
+</script>
+</body>
+</html>
