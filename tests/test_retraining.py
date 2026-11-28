@@ -1,3 +1,4 @@
+# tests for the retraining helpers using a throwaway local mlflow
 from pathlib import Path
 
 import mlflow
@@ -98,3 +99,11 @@ def test_promote_reject_and_rollback(local_mlflow):
     assert common.get_role(cfg, "champion") == v2
     rollback(cfg)
     assert common.get_role(cfg, "champion") == v1
+
+
+def test_gate_blocks_worse_branch():
+    from src.retraining.eval_gate import gate
+    champ = {"test_scam_f1": 0.96, "challenge_v2_scam_f1": 0.73}
+    assert all(gate({"test_scam_f1": 0.958, "challenge_v2_scam_f1": 0.73}, champ, 0.005).values())
+    assert not all(gate({"test_scam_f1": 0.90, "challenge_v2_scam_f1": 0.73}, champ, 0.005).values())
+    assert not all(gate({"test_scam_f1": 0.96, "challenge_v2_scam_f1": 0.60}, champ, 0.005).values())

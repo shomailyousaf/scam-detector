@@ -42,6 +42,9 @@ retraining:
   max_features: 300000
   C: 4.0
   seed: 42
-  
+  # promotion rule, the challenger must not get worse on the fixed test set
+  # and must do at least as well on the challenge set of everyday messages
   max_test_f1_drop: 0.005
   min_challenge_f1_gain: 0.0
+  # pull request gate, a branch may not be worse than the champion by more than this
+  gate_tolerance: 0.005

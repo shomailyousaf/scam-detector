@@ -75,7 +75,8 @@ def main():
     new_train = pd.concat([train[["text", "label_id"]], batch[["text", "label_id"]]], ignore_index=True)
     _, version, metrics, run_id = train_log_register(
         new_train, cfg, f"challenger_{a.name}",
-        {"trigger": "drift_alert", "trained_on": f"train+{a.name}", "batch": a.name})
+        {"trigger": "drift_alert", "trained_on": f"train+{a.name}", "batch": a.name,
+         "batch_path": Path(a.batch).as_posix()})
     set_role(cfg, "challenger", version)
 
     report.update({"retrained": True, "challenger_version": version, "challenger_run_id": run_id,

@@ -1,0 +1,86 @@
+# runs on every pull request to main
+# a pull request can only be merged when both jobs pass
+name: pr checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  tests-and-data:
+    name: unit tests and data validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - name: install packages
+        run: pip install -r requirements-monitoring.txt
+
+      - name: connect dvc to dagshub
+        env:
+          DAGSHUB_USER: ${{ secrets.DAGSHUB_USER }}
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user "$DAGSHUB_USER"
+          dvc remote modify origin --local password "$DAGSHUB_TOKEN"
+
+      - name: pull raw data
+        run: dvc pull data/raw/scam_messages_v1.csv.dvc data/raw/scam_messages_v2_additions.csv.dvc
+
+      # schema checks, cleaning, leak free split, the 7 split checks and the drift batches
+      - name: data validation
+        run: dvc repro --force check_splits make_batches
+
+      - name: unit tests
+        run: pytest -q
+
+      - name: keep the data for the gate
+        uses: actions/upload-artifact@v4
+        with:
+          name: data
+          path: |
+            data/processed
+            data/batches
+
+  eval-gate:
+    name: model evaluation gate
+    needs: tests-and-data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - name: install packages
+        run: pip install -r requirements-monitoring.txt
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: data
+          path: data
+
+      # trains this branch's model and compares it with the production champion
+      - name: compare with the production champion
+        env:
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USER }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+        run: python -m src.retraining.eval_gate
+
+      - name: save the gate result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-gate-result
+          path: reports/eval_gate.json
