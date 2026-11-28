@@ -26,10 +26,19 @@ split:
   val_ratio: 0.15               
 
 monitoring:
-  reference_path: data/processed/train.csv   
-  reference_sample: 5000        
+  reference_path: data/processed/train.csv   # training data is our normal
+  reference_sample: 5000        # sample so the check stays quick
   seed: 42
-  feature_threshold: 0.25       
-  drift_share: 0.4              
+  feature_threshold: 0.25       # how different one feature has to be to count as drifted
+  drift_share: 0.4              # alert if 40 percent of the features drifted
   batches_dir: data/batches
-  normal_size: 500              
+  normal_size: 500              # normal batch from validation data
+
+retraining:
+  model_name: scam-detector-tfidf   # the production model in the mlflow registry
+  ngram_min: 2
+  ngram_max: 5
+  min_df: 2
+  max_features: 300000
+  C: 4.0
+  seed: 42

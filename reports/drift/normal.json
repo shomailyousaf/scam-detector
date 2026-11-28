@@ -1,0 +1,67 @@
+{
+  "batch": "normal",
+  "rows": 500,
+  "drift_detected": false,
+  "drifted_share": 0.2222,
+  "drift_share_threshold": 0.4,
+  "drifted_features": [
+    "has_money",
+    "urdu_ratio"
+  ],
+  "features": {
+    "n_chars": {
+      "score": 0.1097,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "n_words": {
+      "score": 0.1062,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "digit_ratio": {
+      "score": 0.1446,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "upper_ratio": {
+      "score": 0.0532,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "urdu_ratio": {
+      "score": 0.2807,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "has_url": {
+      "score": 0.0328,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "has_money": {
+      "score": 0.4267,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "has_code": {
+      "score": 0.0067,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "language": {
+      "score": 0.0245,
+      "threshold": 0.25,
+      "method": "jensenshannon",
+      "drifted": false
+    }
+  }
+}

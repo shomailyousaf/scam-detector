@@ -1,0 +1,20 @@
+{
+  "batch": "normal",
+  "batch_rows": 500,
+  "input_drift": {
+    "drift_detected": false,
+    "drifted_share": 0.2222,
+    "drifted_features": [
+      "has_money",
+      "urdu_ratio"
+    ]
+  },
+  "champion_version": 1,
+  "prediction_drift": {
+    "score": 0.1265,
+    "drifted": false,
+    "mean_probability_reference": 0.4243,
+    "mean_probability_batch": 0.4795
+  },
+  "retrained": false
+}

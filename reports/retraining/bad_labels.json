@@ -1,0 +1,52 @@
+{
+  "batch": "bad_labels",
+  "batch_rows": 279,
+  "input_drift": {
+    "drift_detected": true,
+    "drifted_share": 0.8889,
+    "drifted_features": [
+      "has_code",
+      "has_money",
+      "has_url",
+      "language",
+      "n_chars",
+      "n_words",
+      "upper_ratio",
+      "urdu_ratio"
+    ]
+  },
+  "champion_version": 1,
+  "prediction_drift": {
+    "score": 0.3468,
+    "drifted": true,
+    "mean_probability_reference": 0.4243,
+    "mean_probability_batch": 0.5247
+  },
+  "retrained": true,
+  "challenger_version": "3",
+  "challenger_run_id": "758b218828ba433398b145743f0a1edc",
+  "challenger": {
+    "test_scam_f1": 0.957115,
+    "test_scam_precision": 0.960861,
+    "test_scam_recall": 0.953398,
+    "test_pr_auc": 0.992947,
+    "test_false_alarm_rate": 0.028694,
+    "challenge_v2_scam_f1": 0.459016,
+    "challenge_v2_scam_precision": 0.388889,
+    "challenge_v2_scam_recall": 0.56,
+    "challenge_v2_pr_auc": 0.6055,
+    "challenge_v2_false_alarm_rate": 0.733333
+  },
+  "champion": {
+    "challenge_v2_false_alarm_rate": 0.466667,
+    "challenge_v2_pr_auc": 0.739107,
+    "challenge_v2_scam_f1": 0.607143,
+    "challenge_v2_scam_precision": 0.548387,
+    "challenge_v2_scam_recall": 0.68,
+    "test_false_alarm_rate": 0.02685,
+    "test_pr_auc": 0.993055,
+    "test_scam_f1": 0.957444,
+    "test_scam_precision": 0.963223,
+    "test_scam_recall": 0.951734
+  }
+}
