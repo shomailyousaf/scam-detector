@@ -86,7 +86,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(scam_api_requests_total{status=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(scam_api_requests_total[$__rate_interval])), 0.0001)",
+          "expr": "((sum(rate(scam_api_requests_total{status=~\"5..\"}[$__rate_interval]))) or vector(0)) / clamp_min(sum(rate(scam_api_requests_total[$__rate_interval])), 0.0001)",
           "legendFormat": "",
           "refId": "A"
         }
@@ -416,7 +416,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(scam_api_requests_total{status=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(scam_api_requests_total[$__rate_interval])), 0.0001)",
+          "expr": "((sum(rate(scam_api_requests_total{status=~\"5..\"}[$__rate_interval]))) or vector(0)) / clamp_min(sum(rate(scam_api_requests_total[$__rate_interval])), 0.0001)",
           "legendFormat": "5xx share",
           "refId": "A"
         },
@@ -425,7 +425,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(scam_api_errors_total[$__rate_interval]))",
+          "expr": "(sum(rate(scam_api_errors_total[$__rate_interval]))) or vector(0)",
           "legendFormat": "unhandled exceptions / s",
           "refId": "B"
         }
