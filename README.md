@@ -157,3 +157,32 @@ tests/                   tests
 reproduce.py             runs everything with one command
 Dockerfile               same thing inside a container
 ```
+
+## Web service (API, UI, monitoring)
+
+A FastAPI service that always serves the current **champion** from the MLflow registry on DagsHub, so whatever the retraining loop promotes is what gets served (the service checks every `MODEL_REFRESH_SECONDS`, default 300, and `POST /reload` forces it).
+
+| Endpoint | What it does |
+|---|---|
+| `GET /` | web page: paste a message, see label, risk level and which words pushed it towards scam |
+| `POST /predict` | `{"text": "...", "explain": true}` -> label, `scam_probability`, `risk_level`, explanation, model version |
+| `GET /health` | model loaded or not, version, how the champion was found |
+| `GET /metrics` | Prometheus metrics |
+| `POST /reload` | load the champion again now (needs header `X-Reload-Token` if `RELOAD_TOKEN` is set) |
+
+Model loading: `models:/scam-detector-tfidf@champion`. If DagsHub does not resolve the alias, the version tagged `role=champion` is used.
+
+Risk level from the scam probability (thresholds in `params.yaml` under `serving`): below 0.30 low, 0.30 to 0.70 medium, 0.70 and above high. Label is SCAM at 0.5 and above.
+
+Explanation: the model is char TF-IDF x logistic regression, so score = intercept + sum(tfidf x coefficient). Each character n-gram sits inside one word, so we add them up per word. The word scores plus the intercept equal the model's logit exactly. Positive pushes towards scam, negative towards normal. The top character patterns are shown too.
+
+Run it locally (credentials only as environment variables, see `.env.example`):
+
+```
+cp .env.example .env            # fill in your DagsHub username and token
+docker compose up --build       # app :8000, Prometheus :9090, Grafana :3000
+```
+
+Grafana opens with the "Scam detector API" dashboard already loaded: request rate, error rate, p50/p95/p99 latency, predictions per class and per risk level, mean probability, and the champion version being served.
+
+Deploy: `render.yaml` is a Render blueprint (Docker, free plan). Set `MLFLOW_TRACKING_USERNAME` and `MLFLOW_TRACKING_PASSWORD` in the Render dashboard, never in git.

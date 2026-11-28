@@ -1,0 +1,10 @@
+# everything the container needs to serve the champion model
+# scikit-learn and pandas are pinned to what the model was trained and logged with
+-r requirements-api.txt
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==2.1.3
+pyyaml==6.0.2
+cloudpickle==3.1.1
+joblib==1.4.2
+mlflow-skinny==3.18.0

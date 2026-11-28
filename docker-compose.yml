@@ -1,0 +1,41 @@
+# api + ui, prometheus and grafana on one machine:   docker compose up --build
+#   app        http://localhost:8000
+#   prometheus http://localhost:9090
+#   grafana    http://localhost:3000   (user admin, password from GRAFANA_ADMIN_PASSWORD)
+# credentials are read from a local .env file, see .env.example
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    ports: ["8000:8000"]
+    environment:
+      MLFLOW_TRACKING_USERNAME: ${MLFLOW_TRACKING_USERNAME:?set it in .env}
+      MLFLOW_TRACKING_PASSWORD: ${MLFLOW_TRACKING_PASSWORD:?set it in .env}
+      MODEL_REFRESH_SECONDS: ${MODEL_REFRESH_SECONDS:-300}
+      RELOAD_TOKEN: ${RELOAD_TOKEN:-}
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["9090:9090"]
+    depends_on: [api]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+volumes:
+  grafana-data:

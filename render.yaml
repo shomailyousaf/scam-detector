@@ -1,0 +1,20 @@
+# one click deploy on render.com: New > Blueprint > pick this repo
+# the dagshub user and token are secrets, set them in the render dashboard (sync: false means
+# the value is never stored in git)
+services:
+  - type: web
+    name: scam-detector
+    runtime: docker
+    dockerfilePath: ./Dockerfile.serve
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: MLFLOW_TRACKING_USERNAME
+        sync: false
+      - key: MLFLOW_TRACKING_PASSWORD
+        sync: false
+      - key: RELOAD_TOKEN
+        generateValue: true
+      - key: MODEL_REFRESH_SECONDS
+        value: "300"

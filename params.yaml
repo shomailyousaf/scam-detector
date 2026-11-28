@@ -48,3 +48,9 @@ retraining:
   min_challenge_f1_gain: 0.0
   # pull request gate, a branch may not be worse than the champion by more than this
   gate_tolerance: 0.005
+
+serving:
+  # probability -> risk level for the web service, below medium is low
+  risk_thresholds:
+    medium: 0.30
+    high: 0.70

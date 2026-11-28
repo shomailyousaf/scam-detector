@@ -1,0 +1,26 @@
+# web service (api + ui). Build and run:
+#   docker build -f Dockerfile.serve -t scam-detector-api .
+#   docker run -p 8000:8000 -e MLFLOW_TRACKING_USERNAME=... -e MLFLOW_TRACKING_PASSWORD=... scam-detector-api
+# the dagshub user and token are only ever passed in as environment variables
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+COPY requirements-api.txt requirements-serving.txt ./
+RUN pip install --default-timeout=300 --retries 10 -r requirements-serving.txt
+
+COPY params.yaml ./
+COPY src/__init__.py ./src/__init__.py
+COPY src/common ./src/common
+COPY src/serving ./src/serving
+
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s \
+  CMD python -c "import urllib.request,os;urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','8000')+'/health',timeout=4)" || exit 1
+
+# PORT is set by most cloud hosts, 8000 locally
+CMD ["sh", "-c", "uvicorn src.serving.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
