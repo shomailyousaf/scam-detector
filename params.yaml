@@ -26,7 +26,10 @@ split:
   val_ratio: 0.15               
 
 monitoring:
-  reference_path: data/processed/train.csv   # training data is our normal
-  reference_sample: 5000        # sample so the check stays quick
+  reference_path: data/processed/train.csv   
+  reference_sample: 5000        
   seed: 42
-  drift_share: 0.5              # alert if half the features changed
+  feature_threshold: 0.25       
+  drift_share: 0.4              
+  batches_dir: data/batches
+  normal_size: 500              

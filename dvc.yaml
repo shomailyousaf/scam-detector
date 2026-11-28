@@ -69,3 +69,14 @@ stages:
           cache: false
       - reports/metrics_tfidf_logreg.json:
           cache: false
+
+  make_batches:
+    cmd: python -m src.monitoring.make_batches
+    deps:
+      - data/interim/clean.csv
+      - data/processed
+      - src/monitoring/make_batches.py
+    params:
+      - monitoring
+    outs:
+      - data/batches

@@ -180,3 +180,35 @@ stages:
       hash: md5
       md5: 238d828596f92d9e707c109cc7a295f6
       size: 895
+  make_batches:
+    cmd: python -m src.monitoring.make_batches
+    deps:
+    - path: data/interim/clean.csv
+      hash: md5
+      md5: 1f4dd2c55cc2fd5158ee786a036aac1d
+      size: 48547462
+    - path: data/processed
+      hash: md5
+      md5: 600bc9ec903d0e888fd2a7f9426cbb8d.dir
+      size: 48479546
+      nfiles: 4
+    - path: src/monitoring/make_batches.py
+      hash: md5
+      md5: 04f5ba90f71a02bfb6cf045302ca0f3c
+      size: 1331
+    params:
+      params.yaml:
+        monitoring:
+          reference_path: data/processed/train.csv
+          reference_sample: 5000
+          seed: 42
+          feature_threshold: 0.25
+          drift_share: 0.4
+          batches_dir: data/batches
+          normal_size: 500
+    outs:
+    - path: data/batches
+      hash: md5
+      md5: d29563a1a416d5aa2d9315392b3f4f9f.dir
+      size: 522051
+      nfiles: 3

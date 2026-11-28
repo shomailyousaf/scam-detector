@@ -1,7 +1,3 @@
-# checks if a new batch of messages looks different from the training data
-# usage
-#   python -m src.monitoring.drift --current batch.csv --name batch1
-#   add --fail-on-drift to exit with code 2 when drift is found
 import argparse
 import json
 import re
@@ -47,9 +43,12 @@ def features(df):
     return out
 
 
-def check_drift(current, reference, drift_share, name, out_dir=OUT_DIR):
+def check_drift(current, reference, drift_share, name, out_dir=OUT_DIR, threshold=0.25):
     definition = DataDefinition(numerical_columns=NUMERIC, categorical_columns=CATEGORICAL)
-    snapshot = Report([DataDriftPreset(drift_share=drift_share)]).run(
+    # same distance tests for every batch size so results dont flip with sample size
+    preset = DataDriftPreset(drift_share=drift_share, num_method="wasserstein",
+                             cat_method="jensenshannon", threshold=threshold)
+    snapshot = Report([preset]).run(
         current_data=Dataset.from_pandas(features(current), data_definition=definition),
         reference_data=Dataset.from_pandas(features(reference), data_definition=definition),
     )
@@ -61,8 +60,7 @@ def check_drift(current, reference, drift_share, name, out_dir=OUT_DIR):
             share = float(m["value"]["share"])
         elif cfg["type"].endswith("ValueDrift"):
             score, threshold, method = float(m["value"]), float(cfg["threshold"]), cfg["method"]
-            # small batches get a p value test where low means drift
-            # big batches get a distance where high means drift
+            # a p value is drift when low, a distance is drift when high
             drifted = score < threshold if "p_value" in method else score >= threshold
             columns[cfg["column"]] = {
                 "score": round(score, 4),
@@ -102,7 +100,9 @@ def main():
     a = ap.parse_args()
 
     current = pd.read_csv(a.current, keep_default_na=False)
-    res = check_drift(current, load_reference(cfg), cfg["monitoring"]["drift_share"], a.name)
+    m = cfg["monitoring"]
+    res = check_drift(current, load_reference(cfg), m["drift_share"], a.name,
+                      threshold=m["feature_threshold"])
 
     status = "DRIFT DETECTED" if res["drift_detected"] else "no drift"
     print(f"[drift] {a.name}: {status}  ({res['drifted_share']:.0%} of features drifted, "

@@ -1,0 +1,73 @@
+{
+  "batch": "batch_02_everyday",
+  "rows": 279,
+  "drift_detected": true,
+  "drifted_share": 0.8889,
+  "drift_share_threshold": 0.4,
+  "drifted_features": [
+    "has_code",
+    "has_money",
+    "has_url",
+    "language",
+    "n_chars",
+    "n_words",
+    "upper_ratio",
+    "urdu_ratio"
+  ],
+  "features": {
+    "n_chars": {
+      "score": 0.7866,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "n_words": {
+      "score": 0.7601,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "digit_ratio": {
+      "score": 0.1998,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": false
+    },
+    "upper_ratio": {
+      "score": 0.5793,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "urdu_ratio": {
+      "score": 1.5678,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "has_url": {
+      "score": 0.3483,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "has_money": {
+      "score": 0.8037,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "has_code": {
+      "score": 1.1551,
+      "threshold": 0.25,
+      "method": "wasserstein",
+      "drifted": true
+    },
+    "language": {
+      "score": 0.529,
+      "threshold": 0.25,
+      "method": "jensenshannon",
+      "drifted": true
+    }
+  }
+}
