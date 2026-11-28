@@ -12,3 +12,6 @@ mlruns/
 mlflow.db
 mlartifacts/
 reports/confusion_*.png
+
+# drift html reports are big so we only keep the json
+reports/drift/*.html

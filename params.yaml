@@ -24,3 +24,9 @@ split:
   seed: 42
   test_ratio: 0.15             
   val_ratio: 0.15               
+
+monitoring:
+  reference_path: data/processed/train.csv   # training data is our normal
+  reference_sample: 5000        # sample so the check stays quick
+  seed: 42
+  drift_share: 0.5              # alert if half the features changed
