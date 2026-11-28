@@ -40,7 +40,7 @@ retraining:
   ngram_max: 5
   min_df: 2
   max_features: 300000
-  C: 4.0
+  C: 0.01
   seed: 42
   # promotion rule, the challenger must not get worse on the fixed test set
   # and must do at least as well on the challenge set of everyday messages
