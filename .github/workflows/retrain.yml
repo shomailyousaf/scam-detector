@@ -1,0 +1,76 @@
+# the closed retraining loop, runs on github instead of a laptop
+# starts on its own when a new labelled batch is pushed to data/incoming
+# or by hand from the actions tab, where you pick a batch
+name: retraining loop
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/incoming/*.dvc"
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: batch to check
+        type: choice
+        options: [batch_01_normal, batch_02_everyday, batch_03_bad_labels]
+        default: batch_02_everyday
+
+# never run two loops at once, they would both change the champion
+concurrency:
+  group: retraining
+  cancel-in-progress: false
+
+jobs:
+  loop:
+    name: drift check, retrain, promote or reject
+    runs-on: ubuntu-latest
+    env:
+      DAGSHUB_USER: ${{ secrets.DAGSHUB_USER }}
+      DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+      MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USER }}
+      MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+      BATCH: ${{ inputs.batch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - name: install packages
+        run: pip install -r requirements-monitoring.txt
+
+      - name: connect dvc to dagshub
+        run: |
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user "$DAGSHUB_USER"
+          dvc remote modify origin --local password "$DAGSHUB_TOKEN"
+
+      - name: get the data ready
+        run: |
+          dvc pull data/raw/scam_messages_v1.csv.dvc data/raw/scam_messages_v2_additions.csv.dvc
+          dvc repro check_splits make_batches
+
+      - name: pull the new batch
+        if: github.event_name == 'push'
+        run: dvc pull --glob "data/incoming/*.dvc"
+
+      - name: run the loop
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            python -m src.retraining.loop --latest
+          else
+            python -m src.retraining.loop --batch "data/batches/$BATCH.csv"
+          fi
+
+      - name: save the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retraining-reports
+          path: |
+            reports/retraining
+            reports/drift

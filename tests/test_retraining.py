@@ -107,3 +107,11 @@ def test_gate_blocks_worse_branch():
     assert all(gate({"test_scam_f1": 0.958, "challenge_v2_scam_f1": 0.73}, champ, 0.005).values())
     assert not all(gate({"test_scam_f1": 0.90, "challenge_v2_scam_f1": 0.73}, champ, 0.005).values())
     assert not all(gate({"test_scam_f1": 0.96, "challenge_v2_scam_f1": 0.60}, champ, 0.005).values())
+
+
+def test_loop_picks_newest_incoming_batch(tmp_path):
+    from src.retraining.loop import latest_incoming
+    for n in ("2026-11-20_a.csv", "2026-11-28_b.csv", "2026-11-25_c.csv"):
+        (tmp_path / n).write_text("text,label_id\nhi,0\n")
+    assert latest_incoming(tmp_path).name == "2026-11-28_b.csv"
+    assert latest_incoming(tmp_path / "missing") is None

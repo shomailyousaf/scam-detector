@@ -36,21 +36,13 @@ def prediction_drift(model, reference, batch, threshold):
     }
 
 
-def main():
-    cfg = load_params()
+def run_retrain(cfg, batch_path, name, force=False):
     m = cfg["monitoring"]
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--batch", required=True)
-    ap.add_argument("--name", required=True)
-    ap.add_argument("--force", action="store_true", help="retrain even without drift")
-    a = ap.parse_args()
-
-    setup_mlflow()
-    batch = read(a.batch)
+    batch = read(batch_path)
     reference = load_reference(cfg)
-    report = {"batch": a.name, "batch_rows": len(batch)}
+    report = {"batch": name, "batch_rows": len(batch)}
 
-    inp = check_drift(batch, reference, m["drift_share"], a.name, threshold=m["feature_threshold"])
+    inp = check_drift(batch, reference, m["drift_share"], name, threshold=m["feature_threshold"])
     report["input_drift"] = {k: inp[k] for k in ("drift_detected", "drifted_share", "drifted_features")}
 
     champion, champ_v = load_role(cfg, "champion")
@@ -64,27 +56,39 @@ def main():
     print(f"[retrain] prediction drift: {pd_['drifted']}  (score {pd_['score']}, mean scam probability "
           f"{pd_['mean_probability_reference']} on training data vs {pd_['mean_probability_batch']} on batch)")
 
-    if not (inp["drift_detected"] or a.force):
+    if not (inp["drift_detected"] or force):
         report["retrained"] = False
-        write_json(report, f"reports/retraining/{a.name}.json")
+        write_json(report, f"reports/retraining/{name}.json")
         print("[retrain] no drift, champion stays, nothing to retrain")
-        return
+        return report
 
     print("[retrain] drift alert, training a challenger on train plus the new batch")
     train = read(Path(cfg["data"]["processed_dir"]) / "train.csv")
     new_train = pd.concat([train[["text", "label_id"]], batch[["text", "label_id"]]], ignore_index=True)
     _, version, metrics, run_id = train_log_register(
-        new_train, cfg, f"challenger_{a.name}",
-        {"trigger": "drift_alert", "trained_on": f"train+{a.name}", "batch": a.name,
-         "batch_path": Path(a.batch).as_posix()})
+        new_train, cfg, f"challenger_{name}",
+        {"trigger": "drift_alert", "trained_on": f"train+{name}", "batch": name,
+         "batch_path": Path(batch_path).as_posix()})
     set_role(cfg, "challenger", version)
 
     report.update({"retrained": True, "challenger_version": version, "challenger_run_id": run_id,
                    "challenger": metrics, "champion": version_metrics(cfg, champ_v)})
-    write_json(report, f"reports/retraining/{a.name}.json")
+    write_json(report, f"reports/retraining/{name}.json")
     print(f"[retrain] registered version {version} as challenger")
     for k in ("test_scam_f1", "challenge_v2_scam_f1", "challenge_v2_false_alarm_rate"):
         print(f"   {k:32s} champion {report['champion'][k]:.4f}   challenger {metrics[k]:.4f}")
+    return report
+
+
+def main():
+    cfg = load_params()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--batch", required=True)
+    ap.add_argument("--name", required=True)
+    ap.add_argument("--force", action="store_true", help="retrain even without drift")
+    a = ap.parse_args()
+    setup_mlflow()
+    run_retrain(cfg, a.batch, a.name, a.force)
 
 
 if __name__ == "__main__":
