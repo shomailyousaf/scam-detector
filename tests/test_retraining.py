@@ -1,4 +1,3 @@
-# tests for the retraining helpers using a throwaway local mlflow
 from pathlib import Path
 
 import mlflow
@@ -65,4 +64,37 @@ def test_roles_work_when_server_has_no_aliases(local_mlflow, monkeypatch):
     assert common.get_role(cfg, "champion") is None
     assert common.find_version(cfg, "trigger", "bootstrap") == v1
     common.set_role(cfg, "champion", v1)
+    assert common.get_role(cfg, "champion") == v1
+
+
+def test_promotion_rule():
+    from src.retraining.promote import decide
+    champ = {"test_scam_f1": 0.957, "challenge_v2_scam_f1": 0.60}
+    better = {"test_scam_f1": 0.959, "challenge_v2_scam_f1": 0.73}
+    worse = {"test_scam_f1": 0.957, "challenge_v2_scam_f1": 0.46}
+    broken_test = {"test_scam_f1": 0.90, "challenge_v2_scam_f1": 0.80}
+    assert decide(champ, better, CFG["retraining"])[0]
+    assert not decide(champ, worse, CFG["retraining"])[0]
+    assert not decide(champ, broken_test, CFG["retraining"])[0]
+
+
+def test_promote_reject_and_rollback(local_mlflow):
+    from mlflow import MlflowClient
+    from src.retraining.promote import promote
+    from src.retraining.rollback import rollback
+    cfg = local_mlflow
+    name = cfg["retraining"]["model_name"]
+    versions = [common.train_log_register(toy(), cfg, n, {"trigger": "test"})[1] for n in "abc"]
+    client = MlflowClient()
+    for v, f1 in zip(versions, (0.60, 0.73, 0.46)):
+        client.set_model_version_tag(name, v, "challenge_v2_scam_f1", str(f1))
+        client.set_model_version_tag(name, v, "test_scam_f1", "0.957")
+    v1, v2, v3 = versions
+    common.set_role(cfg, "champion", v1)
+
+    assert promote(cfg, v3)["decision"] == "rejected"
+    assert common.get_role(cfg, "champion") == v1
+    assert promote(cfg, v2)["decision"] == "promoted"
+    assert common.get_role(cfg, "champion") == v2
+    rollback(cfg)
     assert common.get_role(cfg, "champion") == v1

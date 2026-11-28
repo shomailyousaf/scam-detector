@@ -1,0 +1,36 @@
+{
+  "champion_before": 1,
+  "challenger": 2,
+  "checks": {
+    "test_f1_not_worse": true,
+    "challenge_f1_not_worse": true
+  },
+  "test_f1_drop": -0.0021,
+  "challenge_f1_gain": 0.1262,
+  "champion_metrics": {
+    "challenge_v2_false_alarm_rate": 0.466667,
+    "challenge_v2_pr_auc": 0.739107,
+    "challenge_v2_scam_f1": 0.607143,
+    "challenge_v2_scam_precision": 0.548387,
+    "challenge_v2_scam_recall": 0.68,
+    "test_false_alarm_rate": 0.02685,
+    "test_pr_auc": 0.993055,
+    "test_scam_f1": 0.957444,
+    "test_scam_precision": 0.963223,
+    "test_scam_recall": 0.951734
+  },
+  "challenger_metrics": {
+    "challenge_v2_false_alarm_rate": 0.433333,
+    "challenge_v2_pr_auc": 0.863312,
+    "challenge_v2_scam_f1": 0.733333,
+    "challenge_v2_scam_precision": 0.628571,
+    "challenge_v2_scam_recall": 0.88,
+    "test_false_alarm_rate": 0.026235,
+    "test_pr_auc": 0.993556,
+    "test_scam_f1": 0.959588,
+    "test_scam_precision": 0.964156,
+    "test_scam_recall": 0.955062
+  },
+  "decision": "promoted",
+  "champion_after": 2
+}

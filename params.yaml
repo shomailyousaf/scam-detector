@@ -42,3 +42,6 @@ retraining:
   max_features: 300000
   C: 4.0
   seed: 42
+  
+  max_test_f1_drop: 0.005
+  min_challenge_f1_gain: 0.0
